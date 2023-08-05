@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "+libraries": [
     {
-      "name": "net.legacyfabric:intermediary:${minecraft_version}",
+      "name": "net.legacyfabric.v2:intermediary:${minecraft_version}",
       "url": "https://maven.legacyfabric.net/"
     }
   ],

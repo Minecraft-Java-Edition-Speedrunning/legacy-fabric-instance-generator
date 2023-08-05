@@ -1,12 +1,15 @@
-#!/usr/bin/env python3
 import os
 import zipfile
+from enum import StrEnum
 
-loader: str = "0.14.21"
-legacy_fixes: str = "legacy-fixes-1.0.1.jar"
-lwjgl3: str = "3.1.6"
-lwjgl2: str = "2.9.4-nightly-20150209"
-lwjgl2_patch: str = "2.9.4+legacyfabric.5"
+loader: str = "0.14.22"
+
+
+class IntermediaryType(StrEnum):
+    LegacyFabric = "net.fabricmc.intermediary.json"
+    LegacyFabricNoApplet = "net.fabricmc.intermediary.pre-1.7.json"
+    LegacyFabricV2 = "net.fabricmc.intermediary.v2.json"
+    Ornithe = "net.fabricmc.intermediary.ornithe.json"
 
 
 def mkdir_if_not_exists(path: str):
@@ -15,18 +18,18 @@ def mkdir_if_not_exists(path: str):
 
 
 class Generator:
-    def __init__(self, loader_version: str, minecraft_version: str, lwjgl_version: str, lwjgl_patch: str, path: str = "temp"):
+    def __init__(self, loader_version: str, minecraft_version: str, lwjgl_version: str,
+                 intermediary_type: IntermediaryType, path: str = "temp"):
         self.lwjgl_version: str = lwjgl_version
         self.minecraft_version: str = minecraft_version
         self.loader_version: str = loader_version
-        self.lwjgl_patch: str = lwjgl_patch
+        self.intermediary_type: IntermediaryType = intermediary_type
         self.path: str = path
 
     def process(self, subject: str) -> str:
         subject = subject.replace("${loader_version}", self.loader_version)
         subject = subject.replace("${minecraft_version}", self.minecraft_version)
         subject = subject.replace("${lwjgl_version}", self.lwjgl_version)
-        subject = subject.replace("${lwjgl_patch}", self.lwjgl_patch)
         subject = subject.replace("${lwjgl_name}",
                                   "LWJGL 3" if self.lwjgl_version.startswith(
                                       "3") else "LWJGL 2")
@@ -46,47 +49,25 @@ class Generator:
             with open("temp/instance.cfg", "w") as t:
                 t.write(self.process(f.read()))
 
+        # ornithe naming convention
+        if self.minecraft_version == "1.0":
+            self.minecraft_version += ".0"
+        if int(self.minecraft_version.split(".")[1]) < 3:
+            self.minecraft_version += "-client"
+
         mkdir_if_not_exists("temp/patches")
-
-        if not self.lwjgl_version.startswith("3"):
-            with open("skel/patches/org.lwjgl.lwjgl.json", "r") as f:
-                with open("temp/patches/org.lwjgl.lwjgl.json", "w") as t:
-                    t.write(self.process(f.read()))
-
-        if self.minecraft_version == "1.6.4" or "1.5.2" or "1.4.7" or "1.3.2":
-            with open("skel/patches/net.fabricmc.intermediary.pre-1.7.json", "r") as f:
-                with open("temp/patches/net.fabricmc.intermediary.json", "w") as t:
-                    t.write(self.process(f.read()))
-        else:
-            with open("skel/patches/net.fabricmc.intermediary.json", "r") as f:
-                with open("temp/patches/net.fabricmc.intermediary.json", "w") as t:
-                    t.write(self.process(f.read()))
-
-        with open("skel/legacyfabric.png", "rb") as f:
-            with open("temp/legacyfabric.png", "wb") as t:
-                t.write(f.read())
-
-        if self.minecraft_version == "1.8.9" or self.minecraft_version == "1.7.10" or self.minecraft_version == "1.6.4" or self.minecraft_version == "1.5.2" or self.minecraft_version == "1.4.7" or self.minecraft_version == "1.3.2":
-            mkdir_if_not_exists("temp/.minecraft")
-            mkdir_if_not_exists("temp/.minecraft/mods")
-            with open(f"skel/.minecraft/mods/{legacy_fixes}", "rb") as f:
-                with open(f"temp/.minecraft/mods/{legacy_fixes}", "wb") as t:
-                    t.write(f.read())
+        with open(f"skel/patches/{self.intermediary_type}", "r") as f:
+            with open("temp/patches/net.fabricmc.intermediary.json", "w") as t:
+                t.write(self.process(f.read()))
 
     def create_zip(self):
-        with zipfile.ZipFile(f"out/legacyfabric-{self.minecraft_version}+loader.{self.loader_version}.zip", "w") as z:
+        with zipfile.ZipFile(
+                f"out/{self.minecraft_version}+loader.{self.loader_version}+lwjgl.{self.lwjgl_version}.zip", "w") as z:
             z.write("temp/mmc-pack.json", "mmc-pack.json")
             z.write("temp/instance.cfg", "instance.cfg")
             z.write("temp/patches/net.fabricmc.intermediary.json",
                     "patches/net.fabricmc.intermediary.json")
-            z.write("temp/legacyfabric.png", "legacyfabric.png")
-
-            if not self.lwjgl_version.startswith("3"):
-                z.write("temp/patches/org.lwjgl.lwjgl.json",
-                    "patches/org.lwjgl.json")
-
-            if self.minecraft_version == "1.8.9" or self.minecraft_version == "1.7.10" or self.minecraft_version == "1.6.4" or self.minecraft_version == "1.5.2" or self.minecraft_version == "1.4.7" or self.minecraft_version == "1.3.2":
-                z.write(f"temp/.minecraft/mods/{legacy_fixes}", f".minecraft/mods/{legacy_fixes}")
+            z.write("skel/legacyfabric.png", "legacyfabric.png")
 
         self.cleanup()
 
@@ -94,36 +75,32 @@ class Generator:
         for root, dirs, files in os.walk(self.path, topdown=False):
             for file in files:
                 os.remove(os.path.join(root, file))
-            for dir in dirs:
-                os.rmdir(os.path.join(root, dir))
+            for directory in dirs:
+                os.rmdir(os.path.join(root, directory))
 
         os.rmdir(self.path)
 
 
 versions = [
-    ("1.13.2", 3),
-    ("1.12.2", 2),
-    ("1.11.2", 2),
-    ("1.10.2", 2),
-    ("1.9.4", 2),
-    ("1.8.9", 2),
-    ("1.7.10", 2),
-    ("1.6.4", 2),
-    ("1.5.2", 2),
-    ("1.4.7", 2),
-    ("1.3.2", 2),
+    ("1.13.2", "3.1.6", IntermediaryType.LegacyFabric),
+    ("1.12.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
+    ("1.12", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabricV2),
+    ("1.11.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
+    ("1.9.4", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
+    ("1.8.9", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
+    ("1.8", "2.9.1", IntermediaryType.LegacyFabric),
+    ("1.7.10", "2.9.1", IntermediaryType.LegacyFabric),
+    ("1.7.4", "2.9.1-nightly-20131017", IntermediaryType.LegacyFabric),
+    ("1.7.2", "2.9.0", IntermediaryType.LegacyFabric),
+    ("1.6.4", "2.9.0", IntermediaryType.LegacyFabric),
+    ("1.3.2", "2.9.0", IntermediaryType.LegacyFabric),
+    ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
 print(f"target loader: {loader}")
 mkdir_if_not_exists("out")
-for version, lwjgl in versions:
-    lwjgl_version = lwjgl3 if lwjgl == 3 else lwjgl2
-    lwjgl_patch = lwjgl3 if lwjgl == 3 else lwjgl2_patch
-    print(f"generating {version} with LWJGL {lwjgl_patch}...")
-    g = Generator(loader, version, lwjgl_version, lwjgl_patch)
+for version, lwjgl, intermediary in versions:
+    print(f"generating {version} with LWJGL {lwjgl}...")
+    g = Generator(loader, version, lwjgl, intermediary)
     g.prepare_skeleton()
     g.create_zip()
-
-# g = Generator(loader, "1.13.2", lwjgl3)
-# g.prepare_skeleton()
-# g.create_zip()

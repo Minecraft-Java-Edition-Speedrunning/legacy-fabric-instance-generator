@@ -2,9 +2,12 @@
   "formatVersion": 1,
   "+libraries": [
     {
-      "name": "net.legacyfabric:intermediary:${minecraft_version}",
-      "url": "https://maven.legacyfabric.net/"
+      "name": "net.ornithemc:calamus-intermediary:${minecraft_version}",
+      "url": "https://maven.ornithemc.net/releases"
     }
+  ],
+  "+traits": [
+    "noapplet"
   ],
   "name": "Intermediary Mappings",
   "uid": "net.fabricmc.intermediary",

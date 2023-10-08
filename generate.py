@@ -2,8 +2,6 @@ import os
 import zipfile
 from enum import StrEnum
 
-loader: str = "0.14.22"
-
 
 class IntermediaryType(StrEnum):
     LegacyFabric = "net.fabricmc.intermediary.json"
@@ -99,7 +97,9 @@ versions = [
     ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
+loader = "0.14.23"
 mkdir_if_not_exists("out")
+
 for version, lwjgl, intermediary in versions:
     print(f"generating {version} with LWJGL {lwjgl}...")
     g = Generator(loader, version, lwjgl, intermediary)

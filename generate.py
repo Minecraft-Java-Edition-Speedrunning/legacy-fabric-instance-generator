@@ -67,7 +67,6 @@ class Generator:
             z.write("temp/instance.cfg", "instance.cfg")
             z.write("temp/patches/net.fabricmc.intermediary.json",
                     "patches/net.fabricmc.intermediary.json")
-            z.write("skel/legacyfabric.png", "legacyfabric.png")
 
         self.cleanup()
 
@@ -90,7 +89,8 @@ versions = [
     ("1.8.9", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.8", "2.9.1", IntermediaryType.LegacyFabric),
     ("1.7.10", "2.9.1", IntermediaryType.LegacyFabric),
-    ("1.7.4", "2.9.1-nightly-20131017", IntermediaryType.LegacyFabric),
+    # vanilla provides 2.9.1-nightly-20131017 but multimc and prism meta both use 2.9.4-nightly-20150209
+    ("1.7.4", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.7.2", "2.9.0", IntermediaryType.LegacyFabric),
     ("1.6.4", "2.9.0", IntermediaryType.LegacyFabricNoApplet),
     ("1.3.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),

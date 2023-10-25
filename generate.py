@@ -30,12 +30,8 @@ class Generator:
         subject = subject.replace("${loader_version}", self.loader_version)
         subject = subject.replace("${minecraft_version}", self.minecraft_version + self.minecraft_version_additions)
         subject = subject.replace("${lwjgl_version}", self.lwjgl_version)
-        subject = subject.replace("${lwjgl_name}",
-                                  "LWJGL 3" if self.lwjgl_version.startswith(
-                                      "3") else "LWJGL 2")
-        subject = subject.replace("${lwjgl_uid}",
-                                  "org.lwjgl3" if self.lwjgl_version.startswith(
-                                      "3") else "org.lwjgl")
+        subject = subject.replace("${lwjgl_name}", "LWJGL 3" if self.lwjgl_version.startswith("3") else "LWJGL 2")
+        subject = subject.replace("${lwjgl_uid}", "org.lwjgl3" if self.lwjgl_version.startswith("3") else "org.lwjgl")
         return subject
 
     def prepare_skeleton(self):
@@ -97,7 +93,7 @@ versions = [
     ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
-loader = "0.14.23"
+loader = "0.14.24"
 mkdir_if_not_exists("out")
 
 for version, lwjgl, intermediary in versions:

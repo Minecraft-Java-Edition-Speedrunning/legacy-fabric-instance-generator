@@ -2,8 +2,6 @@ import os
 import zipfile
 from enum import StrEnum
 
-loader: str = "0.14.22"
-
 
 class IntermediaryType(StrEnum):
     LegacyFabric = "net.fabricmc.intermediary.json"
@@ -32,12 +30,8 @@ class Generator:
         subject = subject.replace("${loader_version}", self.loader_version)
         subject = subject.replace("${minecraft_version}", self.minecraft_version + self.minecraft_version_additions)
         subject = subject.replace("${lwjgl_version}", self.lwjgl_version)
-        subject = subject.replace("${lwjgl_name}",
-                                  "LWJGL 3" if self.lwjgl_version.startswith(
-                                      "3") else "LWJGL 2")
-        subject = subject.replace("${lwjgl_uid}",
-                                  "org.lwjgl3" if self.lwjgl_version.startswith(
-                                      "3") else "org.lwjgl")
+        subject = subject.replace("${lwjgl_name}", "LWJGL 3" if self.lwjgl_version.startswith("3") else "LWJGL 2")
+        subject = subject.replace("${lwjgl_uid}", "org.lwjgl3" if self.lwjgl_version.startswith("3") else "org.lwjgl")
         return subject
 
     def prepare_skeleton(self):
@@ -69,7 +63,6 @@ class Generator:
             z.write("temp/instance.cfg", "instance.cfg")
             z.write("temp/patches/net.fabricmc.intermediary.json",
                     "patches/net.fabricmc.intermediary.json")
-            z.write("skel/legacyfabric.png", "legacyfabric.png")
 
         self.cleanup()
 
@@ -92,14 +85,17 @@ versions = [
     ("1.8.9", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.8", "2.9.1", IntermediaryType.LegacyFabric),
     ("1.7.10", "2.9.1", IntermediaryType.LegacyFabric),
-    ("1.7.4", "2.9.1-nightly-20131017", IntermediaryType.LegacyFabric),
+    # vanilla provides 2.9.1-nightly-20131017 but multimc and prism meta both use 2.9.4-nightly-20150209
+    ("1.7.4", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.7.2", "2.9.0", IntermediaryType.LegacyFabric),
     ("1.6.4", "2.9.0", IntermediaryType.LegacyFabricNoApplet),
     ("1.3.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
+loader = "0.14.24"
 mkdir_if_not_exists("out")
+
 for version, lwjgl, intermediary in versions:
     print(f"generating {version} with LWJGL {lwjgl}...")
     g = Generator(loader, version, lwjgl, intermediary)

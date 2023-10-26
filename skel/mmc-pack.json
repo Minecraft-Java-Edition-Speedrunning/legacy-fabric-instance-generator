@@ -2,7 +2,7 @@
   "components": [
     {
       "cachedName": "${lwjgl_name}",
-      "cachedVersion": "${lwjgl_patch}",
+      "cachedVersion": "${lwjgl_version}",
       "cachedVolatile": true,
       "dependencyOnly": true,
       "uid": "${lwjgl_uid}",

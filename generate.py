@@ -1,6 +1,7 @@
 import os
 import zipfile
 from enum import StrEnum
+from typing import Optional
 
 
 class IntermediaryType(StrEnum):
@@ -11,23 +12,22 @@ class IntermediaryType(StrEnum):
     Ornithe = "net.fabricmc.intermediary.ornithe.pre-1.6.json"
 
 
-def mkdir_if_not_exists(path: str):
-    if not os.path.exists(path):
-        os.mkdir(path)
+def mkdirs(*paths: str):
+    for path in paths:
+        if not os.path.exists(path):
+            os.mkdir(path)
 
 
 class Generator:
-    def __init__(self, loader_version: str, minecraft_version: str, lwjgl_version: str,
-                 intermediary_type: IntermediaryType, path: str = "temp"):
-        self.lwjgl_version: str = lwjgl_version
-        self.minecraft_version: str = minecraft_version
-        self.loader_version: str = loader_version
-        self.intermediary_type: IntermediaryType = intermediary_type
-        self.path: str = path
-        self.minecraft_version_additions = ""
+    def __init__(self, minecraft_version: str, lwjgl_version: str, intermediary_type: IntermediaryType, path: str = "temp"):
+        self.lwjgl_version = lwjgl_version
+        self.minecraft_version = minecraft_version
+        self.intermediary_type = intermediary_type
+        self.path = path
+        self.minecraft_version_additions = self.fix_version(version)
 
     def process(self, subject: str) -> str:
-        subject = subject.replace("${loader_version}", self.loader_version)
+        subject = subject.replace("${loader_version}", LOADER_VERSION)
         subject = subject.replace("${minecraft_version}", self.minecraft_version + self.minecraft_version_additions)
         subject = subject.replace("${lwjgl_version}", self.lwjgl_version)
         subject = subject.replace("${lwjgl_name}", "LWJGL 3" if self.lwjgl_version.startswith("3") else "LWJGL 2")
@@ -35,35 +35,15 @@ class Generator:
         return subject
 
     def prepare_skeleton(self):
-        mkdir_if_not_exists("temp")
-
-        with open("skel/mmc-pack.json", "r") as f:
-            with open("temp/mmc-pack.json", "w") as t:
-                t.write(self.process(f.read()))
-
-        with open("skel/instance.cfg", "r") as f:
-            with open("temp/instance.cfg", "w") as t:
-                t.write(self.process(f.read()))
-
-        # ornithe naming convention
-        if self.minecraft_version == "1.0":
-            self.minecraft_version_additions += ".0"
-        if int(self.minecraft_version.split(".")[1]) < 3:
-            self.minecraft_version_additions += "-client"
-
-        mkdir_if_not_exists("temp/patches")
-        with open(f"skel/patches/{self.intermediary_type}", "r") as f:
-            with open("temp/patches/net.fabricmc.intermediary.json", "w") as t:
-                t.write(self.process(f.read()))
+        mkdirs("temp", "temp/patches")
+        self.process_file("mmc-pack.json", "instance.cfg")
+        self.process_file(f"patches/{self.intermediary_type}", out="patches/net.fabricmc.intermediary.json")
 
     def create_zip(self):
-        with zipfile.ZipFile(
-                f"out/{self.minecraft_version}+loader.{self.loader_version}.zip", "w") as z:
+        with zipfile.ZipFile(f"out/{self.minecraft_version}+loader.{LOADER_VERSION}.zip", "w") as z:
             z.write("temp/mmc-pack.json", "mmc-pack.json")
             z.write("temp/instance.cfg", "instance.cfg")
-            z.write("temp/patches/net.fabricmc.intermediary.json",
-                    "patches/net.fabricmc.intermediary.json")
-
+            z.write("temp/patches/net.fabricmc.intermediary.json", "patches/net.fabricmc.intermediary.json")
         self.cleanup()
 
     def cleanup(self):
@@ -72,8 +52,23 @@ class Generator:
                 os.remove(os.path.join(root, file))
             for directory in dirs:
                 os.rmdir(os.path.join(root, directory))
-
         os.rmdir(self.path)
+
+    def process_file(self, *files: str, out: Optional[str] = None):
+        for file in files:
+            with open(f"skel/{file}", "r") as f:
+                with open(f"temp/{out if out is not None else file}", "w") as t:
+                    t.write(self.process(f.read()))
+
+    @staticmethod
+    def fix_version(version: str) -> str:
+        # accounts for the ornithe naming convention
+        addition = ""
+        if version == "1.0":
+            addition += ".0"
+        if int(version.split(".")[1]) < 3:
+            addition += "-client"
+        return addition
 
 
 versions = [
@@ -93,11 +88,11 @@ versions = [
     ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
-loader = "0.14.24"
-mkdir_if_not_exists("out")
+LOADER_VERSION = "0.15.0"
+mkdirs("out")
 
 for version, lwjgl, intermediary in versions:
     print(f"generating {version} with LWJGL {lwjgl}...")
-    g = Generator(loader, version, lwjgl, intermediary)
+    g = Generator(version, lwjgl, intermediary)
     g.prepare_skeleton()
     g.create_zip()

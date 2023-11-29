@@ -12,7 +12,7 @@ class IntermediaryType(StrEnum):
     Ornithe = "net.fabricmc.intermediary.ornithe.pre-1.6.json"
 
 
-def mkdir(*paths: str):
+def mkdirs(*paths: str):
     for path in paths:
         if not os.path.exists(path):
             os.mkdir(path)
@@ -20,14 +20,14 @@ def mkdir(*paths: str):
 
 class Generator:
     def __init__(self, minecraft_version: str, lwjgl_version: str, intermediary_type: IntermediaryType, path: str = "temp"):
-        self.lwjgl_version: str = lwjgl_version
-        self.minecraft_version: str = minecraft_version
-        self.intermediary_type: IntermediaryType = intermediary_type
-        self.path: str = path
+        self.lwjgl_version = lwjgl_version
+        self.minecraft_version = minecraft_version
+        self.intermediary_type = intermediary_type
+        self.path = path
         self.minecraft_version_additions = self.fix_version(version)
 
     def process(self, subject: str) -> str:
-        subject = subject.replace("${loader_version}", loader_version)
+        subject = subject.replace("${loader_version}", LOADER_VERSION)
         subject = subject.replace("${minecraft_version}", self.minecraft_version + self.minecraft_version_additions)
         subject = subject.replace("${lwjgl_version}", self.lwjgl_version)
         subject = subject.replace("${lwjgl_name}", "LWJGL 3" if self.lwjgl_version.startswith("3") else "LWJGL 2")
@@ -35,12 +35,12 @@ class Generator:
         return subject
 
     def prepare_skeleton(self):
-        mkdir("temp", "temp/patches")
+        mkdirs("temp", "temp/patches")
         self.process_file("mmc-pack.json", "instance.cfg")
         self.process_file(f"patches/{self.intermediary_type}", out="patches/net.fabricmc.intermediary.json")
 
     def create_zip(self):
-        with zipfile.ZipFile(f"out/{self.minecraft_version}+loader.{loader_version}.zip", "w") as z:
+        with zipfile.ZipFile(f"out/{self.minecraft_version}+loader.{LOADER_VERSION}.zip", "w") as z:
             z.write("temp/mmc-pack.json", "mmc-pack.json")
             z.write("temp/instance.cfg", "instance.cfg")
             z.write("temp/patches/net.fabricmc.intermediary.json", "patches/net.fabricmc.intermediary.json")
@@ -88,8 +88,8 @@ versions = [
     ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
-loader_version = "0.15.0"
-mkdir("out")
+LOADER_VERSION = "0.15.0"
+mkdirs("out")
 
 for version, lwjgl, intermediary in versions:
     print(f"generating {version} with LWJGL {lwjgl}...")

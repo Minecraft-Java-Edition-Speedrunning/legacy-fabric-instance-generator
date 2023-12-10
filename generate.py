@@ -88,7 +88,7 @@ versions = [
     ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
-LOADER_VERSION = "0.15.0"
+LOADER_VERSION = "0.15.1"
 mkdirs("out")
 
 for version, lwjgl, intermediary in versions:

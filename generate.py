@@ -87,10 +87,10 @@ versions = [
     ("1.7.2", "2.9.0", IntermediaryType.LegacyFabric),
     ("1.6.4", "2.9.0", IntermediaryType.LegacyFabricNoApplet),
     ("1.3.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
-    ("1.0", "2.9.0", IntermediaryType.Ornithe)
+    # ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 
-loader_version = "0.15.2"
+loader_version = "0.15.3"
 try:
     loader_version = request("GET", "https://meta.fabricmc.net/v2/versions/loader").json()[0].get("version")
 except ConnectionError:

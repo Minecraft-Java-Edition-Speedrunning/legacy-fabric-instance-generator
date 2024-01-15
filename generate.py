@@ -78,6 +78,7 @@ versions = [
     ("1.12.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.12", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabricV2),
     ("1.11.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
+    ("1.10.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.9.4", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.8.9", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.8", "2.9.1", IntermediaryType.LegacyFabric),
@@ -86,8 +87,11 @@ versions = [
     ("1.7.4", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.7.2", "2.9.0", IntermediaryType.LegacyFabric),
     ("1.6.4", "2.9.0", IntermediaryType.LegacyFabricNoApplet),
+    ("1.5.4", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.4.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
-    ("1.3.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
+    ("1.3.1", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
+    # ("1.2.5", "2.9.0", IntermediaryType.Ornithe),
+    # ("1.1", "2.9.0", IntermediaryType.Ornithe),
     # ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]
 

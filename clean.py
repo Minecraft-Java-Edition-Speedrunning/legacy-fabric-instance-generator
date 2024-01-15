@@ -1,3 +1,5 @@
+import os.path
 import shutil
 
-shutil.rmtree("out")
+if os.path.exists("out"):
+    shutil.rmtree("out")

@@ -86,6 +86,7 @@ versions = [
     ("1.7.4", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.7.2", "2.9.0", IntermediaryType.LegacyFabric),
     ("1.6.4", "2.9.0", IntermediaryType.LegacyFabricNoApplet),
+    ("1.4.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.3.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     # ("1.0", "2.9.0", IntermediaryType.Ornithe)
 ]

@@ -64,6 +64,8 @@ class Generator:
 
     @staticmethod
     def fix_version(candidate: str) -> str:
+        if candidate.count(".") < 2:
+            return ""
         # accounts for the ornithe naming convention
         addition = ""
         if candidate == "1.0":
@@ -90,6 +92,8 @@ versions = [
     ("1.5.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.4.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.3.1", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
+    ("15w14a", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
+    ("1.RV-Pre1", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabricV2)
     # ("1.2.5", "2.9.0", IntermediaryType.Ornithe),
     # ("1.1", "2.9.0", IntermediaryType.Ornithe),
     # ("1.0", "2.9.0", IntermediaryType.Ornithe)

@@ -26,11 +26,12 @@ class Generator:
         self.minecraft_version = minecraft_version
         self.intermediary_type = intermediary_type
         self.path = path
-        self.minecraft_version_additions = self.fix_version(version)
+        self.minecraft_version_fixed = self.fix_version(version)
 
     def process(self, subject: str) -> str:
         subject = subject.replace("${loader_version}", loader_version)
-        subject = subject.replace("${minecraft_version}", self.minecraft_version + self.minecraft_version_additions)
+        subject = subject.replace("${minecraft_version}", self.minecraft_version)
+        subject = subject.replace("${minecraft_version_fixed}", self.minecraft_version_fixed if self.minecraft_version_fixed else self.minecraft_version)
         subject = subject.replace("${lwjgl_version}", self.lwjgl_version)
         subject = subject.replace("${lwjgl_name}", "LWJGL 3" if self.lwjgl_version.startswith("3") else "LWJGL 2")
         subject = subject.replace("${lwjgl_uid}", "org.lwjgl3" if self.lwjgl_version.startswith("3") else "org.lwjgl")
@@ -62,17 +63,17 @@ class Generator:
                 with open(f"temp/{out if out is not None else file}", "w") as t:
                     t.write(self.process(f.read()))
 
-    @staticmethod
-    def fix_version(candidate: str) -> str:
-        if candidate.count(".") < 2:
+    # accounts for ornithe naming conventions
+    def fix_version(self, candidate: str) -> str:
+        # snapshots and non-ornithe versions
+        if candidate.count(".") < 1 or self.intermediary_type != IntermediaryType.Ornithe:
             return ""
-        # accounts for the ornithe naming convention
-        addition = ""
+
         if candidate == "1.0":
-            addition += ".0"
+            candidate += ".0"
         if int(candidate.split(".")[1]) < 3:
-            addition += "-client"
-        return addition
+            candidate += "-client"
+        return candidate
 
 
 versions = [
@@ -93,9 +94,9 @@ versions = [
     ("1.4.7", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.4.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.3.1", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
-    # ("1.2.5", "2.9.0", IntermediaryType.Ornithe),
-    # ("1.1", "2.9.0", IntermediaryType.Ornithe),
-    # ("1.0", "2.9.0", IntermediaryType.Ornithe)
+    ("1.2.5", "2.9.0", IntermediaryType.Ornithe),
+    ("1.1", "2.9.0", IntermediaryType.Ornithe),
+    ("1.0", "2.9.0", IntermediaryType.Ornithe),
     ("15w14a", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.RV-Pre1", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabricV2)
 ]

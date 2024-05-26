@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "+libraries": [
     {
-      "name": "net.ornithemc:calamus-intermediary:${minecraft_version}",
+      "name": "net.ornithemc:calamus-intermediary:${minecraft_version_fixed}",
       "url": "https://maven.ornithemc.net/releases"
     }
   ],

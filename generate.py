@@ -78,6 +78,7 @@ class Generator:
 
 versions = [
     ("1.13.2", "3.1.6", IntermediaryType.LegacyFabric),
+    ("1.13", "3.1.6", IntermediaryType.LegacyFabricV2),
     ("1.12.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
     ("1.12", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabricV2),
     ("1.11.2", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabric),
@@ -93,6 +94,7 @@ versions = [
     ("1.5.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.4.7", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.4.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
+    ("1.3.2", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.3.1", "2.9.0", IntermediaryType.LegacyFabricNoAppletOldArgs),
     ("1.2.5", "2.9.0", IntermediaryType.Ornithe),
     ("1.1", "2.9.0", IntermediaryType.Ornithe),
@@ -101,7 +103,7 @@ versions = [
     ("1.RV-Pre1", "2.9.4-nightly-20150209", IntermediaryType.LegacyFabricV2)
 ]
 
-loader_version = "0.15.3"
+loader_version = "0.16.10"
 try:
     loader_version = request("GET", "https://meta.fabricmc.net/v2/versions/loader").json()[0].get("version")
 except ConnectionError:
